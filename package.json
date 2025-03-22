@@ -9,8 +9,46 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mantine/carousel": "^7.17.0",
+    "@mantine/charts": "^7.17.0",
+    "@mantine/code-highlight": "^7.17.0",
+    "@mantine/core": "^7.17.0",
+    "@mantine/dates": "^7.17.0",
+    "@mantine/dropzone": "^7.17.0",
+    "@mantine/form": "^7.17.0",
+    "@mantine/hooks": "^7.17.0",
+    "@mantine/modals": "^7.17.0",
+    "@mantine/notifications": "^7.17.0",
+    "@mantine/nprogress": "^7.17.0",
+    "@mantine/spotlight": "^7.17.0",
+    "@mantine/tiptap": "^7.17.0",
+    "@tabler/icons-react": "^3.30.0",
+    "@tailwindcss/postcss": "^4.0.8",
+    "@tiptap/extension-link": "^2.11.5",
+    "@tiptap/pm": "^2.11.5",
+    "@tiptap/react": "^2.11.5",
+    "@tiptap/starter-kit": "^2.11.5",
+    "dayjs": "^1.11.13",
+    "embla-carousel-react": "^8.5.2",
+    "html5-qrcode": "^2.2.7",
+    "jsonwebtoken": "^9.0.2",
+    "luxon": "^3.5.0",
+    "mongoose": "^8.10.1",
+    "next": "15.1.7",
+    "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.1.7"
+    "react-export-table-to-excel": "^1.0.6",
+    "react-qr-code": "^2.0.15",
+    "react-spreadsheet": "^0.9.5",
+    "recharts": "^2.15.1",
+    "scheduler": "^0.25.0",
+    "tailwindcss": "^4.0.8",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "postcss": "^8.5.3",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1"
   }
 }
