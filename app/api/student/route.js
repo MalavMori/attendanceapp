@@ -3,7 +3,6 @@ import StudentModel from "../db/models/studentSchema";
 import verifyuser from "../db/verifyuser";
 import FacultyModel from "../db/models/facultySchema";
 
-
 export const POST = async (req, res) => {
   const data = await req.json();
   try {
@@ -13,17 +12,17 @@ export const POST = async (req, res) => {
       const search = data.search;
       const result = await StudentModel.find({
         $or: [
-          { name: new RegExp(search, "i") },
-          { email: new RegExp(search, "i") },
-          { $where: "/^" + search + ".*/.test(this.enNo)" },
-          { $where: "/^" + search + ".*/.test(this.phoneNo)" },
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
         ],
-      });
+      },{authkey:0});
+      console.log(result)
       return Response.json(result);
     } else {
       return Response.json([]);
     }
   } catch (error) {
+    console.log(error)
     return Response.json([]);
   }
 };

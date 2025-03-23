@@ -41,7 +41,7 @@ const WebLayout = ({ children }) => {
           setuser(data);
           setAlertbox("");
         } else {
-          setAlertbox(<AlertError title={"Error"} />);
+          setAlertbox(<AlertError title={"Error"} close={()=>{setAlertbox("")}} />);
         }
       } else {
         signOut();

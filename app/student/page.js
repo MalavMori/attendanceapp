@@ -31,6 +31,7 @@ const Student = () => {
   const getsearchvalue = (e) => {
     if (e.type != "click") {
       setSearchvalue(e.target.value);
+      console.log(e.target.value)
     }
     if (e.key == "Enter" || e.type == "click") {
       setAlertbox(<AlertLoading />);
@@ -77,8 +78,9 @@ const Student = () => {
           size="md"
           placeholder="Search student"
           rightSectionWidth={42}
+          value={searchvalue}
           leftSection={<IconSearch size={18} stroke={1.5} />}
-          onKeyDown={getsearchvalue}
+          onInput={getsearchvalue}
           rightSection={
             <ActionIcon
               onClick={getsearchvalue}

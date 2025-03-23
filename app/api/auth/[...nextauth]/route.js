@@ -1,10 +1,10 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import jsonwebtoken from "jsonwebtoken";
-import DB from "../../db/connectDB";
 import FacultyModel from "../../db/models/facultySchema";
 import StudentModel from "../../db/models/studentSchema";
 import { cookies } from "next/headers";
+import DB from "../../db/connectDB";
 
 let usertype = "";
 
