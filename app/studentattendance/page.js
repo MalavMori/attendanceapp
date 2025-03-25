@@ -3,10 +3,12 @@ import {
   Button,
   Center,
   Flex,
-  Modal,
   Paper,
   PinInput,
   Text,
+  Select,
+  Box,
+  Group,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import AlertLoading from "../components/AlertLoading";
@@ -14,15 +16,17 @@ import AlertSuccess from "../components/AlertSuccess";
 import AlertError from "../components/AlertError";
 import { Html5Qrcode } from "html5-qrcode";
 import { DateTime } from "luxon";
-import { useDisclosure } from "@mantine/hooks";
 
 const StudentaAttendance = () => {
   const [tempAttData, setTempAttData] = useState([]);
   const [keyobj, setKeyobj] = useState({});
   const [alertbox, setAlertbox] = useState("");
   const [qrCodeScanner, setQrCodeScanner] = useState(null);
-  const [opened, { open, close }] = useDisclosure(false);
   const [scandiv, setScandiv] = useState("none");
+  const [devices, setDevices] = useState([]);
+  const [selectedCameraId, setSelectedCameraId] = useState("");
+  const [currentattobj, setCurrentattobj] = useState({ id: "", isgps: false });
+
   const getTempAttData = async () => {
     setAlertbox(<AlertLoading />);
     const res = await fetch("/api/studenttempatt", {
@@ -52,42 +56,40 @@ const StudentaAttendance = () => {
       );
     }
   };
+
   const startScanner = async (data) => {
-    const { id, isgps } = data;
     try {
-      const devices = await Html5Qrcode.getCameras();
-      if (devices && devices.length > 0) {
-        const cameraId = devices[0].id;
+      if (qrCodeScanner && selectedCameraId) {
         qrCodeScanner.start(
-          cameraId,
+          selectedCameraId,
           {
-            fps: 5, // Frames per second
-            qrbox: 300, // Define scanning box width and height
+            fps: 5,
+            qrbox: 300,
           },
           (decodedText) => {
+            const { id, isgps } = data;
             setScandiv("none");
             keyobj[id] = decodedText;
             setKeyobj(keyobj);
             submit({ id, isgps });
             qrCodeScanner
               .stop()
-              .then((s) => {
-              })
+              .then((s) => {})
               .catch((e) => {
                 setScandiv("none");
               });
           },
-          (errorMessage) => {
-            console.warn(`QR Code scan failed: ${errorMessage}`);
-          }
+          (errorMessage) => {}
         );
       } else {
         console.error("No cameras found.");
         setScandiv("none");
+        qrCodeScanner.stop().catch(() => {});
       }
     } catch (error) {
       console.error("Error initializing QR code scanner: ", error);
       setScandiv("none");
+      qrCodeScanner.stop().catch(() => {});
     }
   };
 
@@ -100,17 +102,14 @@ const StudentaAttendance = () => {
             async (position) => {
               const lat = position.coords.latitude;
               const lng = position.coords.longitude;
-              const res = await fetch(
-                "/api/studenttempatt/takeattendance",
-                {
-                  method: "POST",
-                  body: JSON.stringify({
-                    key: keyobj[id],
-                    tempattid: id,
-                    coords: { lat, lng },
-                  }),
-                }
-              );
+              const res = await fetch("/api/studenttempatt/takeattendance", {
+                method: "POST",
+                body: JSON.stringify({
+                  key: keyobj[id],
+                  tempattid: id,
+                  coords: { lat, lng },
+                }),
+              });
               const data = await res.json();
               if (data.success) {
                 setAlertbox(
@@ -159,16 +158,13 @@ const StudentaAttendance = () => {
         } else {
         }
       } else {
-        const res = await fetch(
-          "/api/studenttempatt/takeattendance",
-          {
-            method: "POST",
-            body: JSON.stringify({
-              key: keyobj[id],
-              tempattid: id,
-            }),
-          }
-        );
+        const res = await fetch("/api/studenttempatt/takeattendance", {
+          method: "POST",
+          body: JSON.stringify({
+            key: keyobj[id],
+            tempattid: id,
+          }),
+        });
         const data = await res.json();
         if (data.success) {
           setAlertbox(
@@ -197,8 +193,50 @@ const StudentaAttendance = () => {
 
   useEffect(() => {
     getTempAttData();
-    setQrCodeScanner(new Html5Qrcode("reader"));
+    const initializeScanner = async () => {
+      const scanner = new Html5Qrcode("reader");
+      setQrCodeScanner(scanner);
+
+      try {
+        const cameras = await Html5Qrcode.getCameras();
+        if (cameras && cameras.length > 0) {
+          setDevices(
+            cameras.map((device) => ({
+              value: device.id,
+              label: device.label || "Unnamed Camera",
+            }))
+          );
+          const backCamera = cameras.find((camera) =>
+            camera.label.toLowerCase().includes("back")
+          );
+          setSelectedCameraId(backCamera ? backCamera.id : cameras[0].id);
+        } else {
+          console.error("No cameras found.");
+        }
+      } catch (error) {
+        console.error("Error fetching cameras: ", error);
+      }
+    };
+
+    initializeScanner();
+    return () => {
+      if (qrCodeScanner) {
+        qrCodeScanner.stop().catch((error) => {});
+      }
+    };
   }, []);
+  const handleCameraChange = (value) => {
+    setSelectedCameraId(value);
+
+    if (qrCodeScanner) {
+      qrCodeScanner
+        .stop()
+        .then(() => {
+          startScanner(currentattobj);
+        })
+        .catch((e) => {});
+    }
+  };
   return (
     <>
       <Flex
@@ -245,6 +283,10 @@ const StudentaAttendance = () => {
                   <Button
                     onClick={() => {
                       setScandiv("grid");
+                      setCurrentattobj({
+                        id: tempatt._id,
+                        isgps: tempatt.isgps,
+                      });
                       startScanner({
                         id: tempatt._id,
                         isgps: tempatt.isgps,
@@ -272,35 +314,61 @@ const StudentaAttendance = () => {
           zIndex: 100,
         }}
       >
-        <div
-          id="reader"
-          style={{
-            position: "relative",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "300px",
-            height: "300px",
-            zIndex: 1000,
-          }}
-        ></div>
-        <Button
-          style={{ position: "absolute", right: 0, bottom: 0, margin: "20px" }}
-          onClick={() => {
-            setScandiv("none");
-            qrCodeScanner
-              .stop()
-              .then((s) => {
-              })
-              .catch((e) => {
-                setScandiv("none");
-              });
-          }}
-        >
-          Stop
-        </Button>
+        <Center>
+          <Box
+            style={{
+              zIndex: 1000,
+            }}
+          >
+            <Select
+              label="Select Camera"
+              placeholder="Choose a camera"
+              data={devices}
+              value={selectedCameraId}
+              onChange={handleCameraChange}
+              mb="md"
+            />
+            <Box
+              id="reader"
+              style={{
+                width: "300px",
+                height: "300px",
+                marginBottom: "1rem",
+                border: "1px solid #ccc",
+              }}
+            ></Box>
+            <Group justify="space-between">
+              <Button
+                onClick={() => {
+                  startScanner(currentattobj);
+                }}
+                disabled={!selectedCameraId}
+              >
+                Start Scanning
+              </Button>
+              <Button
+                style={{}}
+                onClick={() => {
+                  setScandiv("none");
+                  qrCodeScanner
+                    .stop()
+                    .then((s) => {})
+                    .catch((e) => {
+                      setScandiv("none");
+                    });
+                }}
+              >
+                Stop
+              </Button>
+            </Group>
+          </Box>
+        </Center>
       </div>
-      {tempAttData.length == 0 && <Center c={"dimmed"} h={200}>No Record Found</Center>}
+      {tempAttData.length == 0 && (
+        <Center c={"dimmed"} h={200}>
+          No Record Found
+        </Center>
+      )}
       {alertbox}
     </>
   );
