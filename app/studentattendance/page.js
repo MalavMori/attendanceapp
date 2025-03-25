@@ -224,6 +224,7 @@ const StudentaAttendance = () => {
                       keyobj[tempatt._id] = e;
                       setKeyobj(keyobj);
                     }}
+                    inputType="number"
                     length={4}
                   />
                   <Center style={{ marginTop: "10px" }}>
