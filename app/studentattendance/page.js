@@ -6,7 +6,6 @@ import {
   Paper,
   PinInput,
   Text,
-  Select,
   Box,
   Group,
 } from "@mantine/core";
@@ -14,7 +13,7 @@ import React, { useEffect, useState } from "react";
 import AlertLoading from "../components/AlertLoading";
 import AlertSuccess from "../components/AlertSuccess";
 import AlertError from "../components/AlertError";
-import { Html5Qrcode } from "html5-qrcode";
+import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
 import { DateTime } from "luxon";
 
 const StudentaAttendance = () => {
@@ -23,8 +22,6 @@ const StudentaAttendance = () => {
   const [alertbox, setAlertbox] = useState("");
   const [qrCodeScanner, setQrCodeScanner] = useState(null);
   const [scandiv, setScandiv] = useState("none");
-  const [devices, setDevices] = useState([]);
-  const [selectedCameraId, setSelectedCameraId] = useState("");
   const [currentattobj, setCurrentattobj] = useState({ id: "", isgps: false });
 
   const getTempAttData = async () => {
@@ -54,42 +51,6 @@ const StudentaAttendance = () => {
           }}
         />
       );
-    }
-  };
-
-  const startScanner = async (data) => {
-    try {
-      if (qrCodeScanner && selectedCameraId) {
-        qrCodeScanner.start(
-          selectedCameraId,
-          {
-            fps: 5,
-            qrbox: 300,
-          },
-          (decodedText) => {
-            const { id, isgps } = data;
-            setScandiv("none");
-            keyobj[id] = decodedText;
-            setKeyobj(keyobj);
-            submit({ id, isgps });
-            qrCodeScanner
-              .stop()
-              .then((s) => {})
-              .catch((e) => {
-                setScandiv("none");
-              });
-          },
-          (errorMessage) => {}
-        );
-      } else {
-        console.error("No cameras found.");
-        setScandiv("none");
-        qrCodeScanner.stop().catch(() => {});
-      }
-    } catch (error) {
-      console.error("Error initializing QR code scanner: ", error);
-      setScandiv("none");
-      qrCodeScanner.stop().catch(() => {});
     }
   };
 
@@ -194,49 +155,22 @@ const StudentaAttendance = () => {
   useEffect(() => {
     getTempAttData();
     const initializeScanner = async () => {
-      const scanner = new Html5Qrcode("reader");
+      const scanner = new Html5QrcodeScanner("reader", {
+        fps: 5,
+        qrbox: { width: 300, height: 300 },
+        rememberLastUsedCamera: true,
+        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+      });
       setQrCodeScanner(scanner);
-
-      try {
-        const cameras = await Html5Qrcode.getCameras();
-        if (cameras && cameras.length > 0) {
-          setDevices(
-            cameras.map((device) => ({
-              value: device.id,
-              label: device.label || "Unnamed Camera",
-            }))
-          );
-          const backCamera = cameras.find((camera) =>
-            camera.label.toLowerCase().includes("back")
-          );
-          setSelectedCameraId(backCamera ? backCamera.id : cameras[0].id);
-        } else {
-          console.error("No cameras found.");
-        }
-      } catch (error) {
-        console.error("Error fetching cameras: ", error);
-      }
     };
 
     initializeScanner();
     return () => {
       if (qrCodeScanner) {
-        qrCodeScanner.stop().catch((error) => {});
+        qrCodeScanner.clear().then((error) => {});
       }
     };
   }, []);
-  const handleCameraChange = (value) => {
-    setSelectedCameraId(value);
-
-    if (qrCodeScanner) {
-      qrCodeScanner
-        .stop()
-        .then(() => {
-          startScanner(currentattobj);
-        })
-        .catch((e) => {});
-    }
-  };
   return (
     <>
       <Flex
@@ -287,10 +221,24 @@ const StudentaAttendance = () => {
                         id: tempatt._id,
                         isgps: tempatt.isgps,
                       });
-                      startScanner({
-                        id: tempatt._id,
-                        isgps: tempatt.isgps,
-                      });
+                      qrCodeScanner.render(
+                        (data) => {
+                          qrCodeScanner.clear().then(() => {
+                            setScandiv("none");
+                            keyobj[tempatt._id] = data;
+                            setKeyobj(keyobj);
+                            submit({
+                              id: tempatt._id,
+                              isgps: tempatt.isgps,
+                            });
+                            console.log({
+                              id: tempatt._id,
+                              isgps: tempatt.isgps,
+                            });
+                          });
+                        },
+                        (e) => {}
+                      );
                     }}
                   >
                     Scan QR
@@ -310,6 +258,7 @@ const StudentaAttendance = () => {
           left: "0",
           width: "100vw",
           height: "100vh",
+          padding: "10px",
           backgroundColor: "rgba(0,0,0,0.2)",
           zIndex: 100,
         }}
@@ -320,42 +269,13 @@ const StudentaAttendance = () => {
               zIndex: 1000,
             }}
           >
-            <Select
-              label="Select Camera"
-              placeholder="Choose a camera"
-              data={devices}
-              value={selectedCameraId}
-              onChange={handleCameraChange}
-              mb="md"
-            />
-            <Box
-              id="reader"
-              style={{
-                width: "300px",
-                height: "300px",
-                marginBottom: "1rem",
-                border: "1px solid #ccc",
-              }}
-            ></Box>
-            <Group justify="space-between">
+            <div id="reader"></div>
+            <Group justify="flex-end">
               <Button
                 onClick={() => {
-                  startScanner(currentattobj);
-                }}
-                disabled={!selectedCameraId}
-              >
-                Start Scanning
-              </Button>
-              <Button
-                style={{}}
-                onClick={() => {
-                  setScandiv("none");
-                  qrCodeScanner
-                    .stop()
-                    .then((s) => {})
-                    .catch((e) => {
-                      setScandiv("none");
-                    });
+                  qrCodeScanner.clear().then(() => {
+                    setScandiv("none");
+                  });
                 }}
               >
                 Stop
