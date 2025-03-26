@@ -10,19 +10,37 @@ export const POST = async (req, res) => {
     const isuser = await FacultyModel.findOne({ email: userdata.email });
     if (isuser) {
       const search = data.search;
-      const result = await StudentModel.find({
-        $or: [
-          { name: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } },
-        ],
-      },{authkey:0});
-      console.log(result)
+      const result = await StudentModel.find(
+        {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            {
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: "$enNo" },
+                  regex: `^${search}`,
+                },
+              },
+            },
+            {
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: "$phoneNo" },
+                  regex: `^${search}`,
+                },
+              },
+            },
+          ],
+        },
+        { authkey: 0 }
+      );
       return Response.json(result);
     } else {
       return Response.json([]);
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return Response.json([]);
   }
 };
