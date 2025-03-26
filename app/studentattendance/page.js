@@ -113,7 +113,7 @@ const StudentaAttendance = () => {
             {
               enableHighAccuracy: true,
               maximumAge: 0,
-              timeout: 10000,
+              timeout: 20000,
             }
           );
         } else {
