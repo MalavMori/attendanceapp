@@ -223,6 +223,7 @@ const AttendanceTable = ({
             }
             return (
               <Table.Th key={row._id + index + day}>
+                <Center>
                 <Text
                   style={{
                     backgroundColor: color,
@@ -346,6 +347,7 @@ const AttendanceTable = ({
                 >
                   {leter.leter}
                 </Text>
+                </Center>
               </Table.Th>
             );
           } else {
@@ -421,8 +423,6 @@ const AttendanceTable = ({
                   new Date(currentmonth).toISOString()
                 )
                   .plus({ days: index })
-                  .toLocaleString({ weekday: "short" });
-
                 return (
                   <Table.Th
                     key={`${day}${index}`}
@@ -430,8 +430,9 @@ const AttendanceTable = ({
                       textAlign: "center",
                     }}
                   >
-                    <Text>{date}</Text>
-                    <Text>{day}</Text>
+                    <Text>{date.toFormat("dd/MM/yyyy")}<br/>
+                    {date.toLocaleString({ weekday: "short" })}<br/>
+                    {day}</Text>
                   </Table.Th>
                 );
               })}
@@ -503,7 +504,7 @@ const AttendanceTable = ({
                       }
                     }
                     return (
-                      <Table.Th key={`${day}${index}`}>{daytotal}</Table.Th>
+                      <Table.Th key={`${day}${index}`}><Center>{daytotal}</Center></Table.Th>
                     );
                   })}
                   <Table.Th></Table.Th>
