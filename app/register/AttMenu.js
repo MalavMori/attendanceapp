@@ -41,6 +41,9 @@ const AttMenu = ({ target, registerid }) => {
             Manual
           </Menu.Item>
           <Menu.Item
+            onClick={() => {
+              router.push(`/attendance/bssid/${registerid}`);
+            }}
             leftSection={
               <IconWifi size={16} color={theme.colors.pink[6]} stroke={1.5} />
             }

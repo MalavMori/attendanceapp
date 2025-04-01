@@ -13,11 +13,13 @@ import {
   ScrollArea,
   Center,
   Paper,
+  Button,
 } from "@mantine/core";
 import StudentForm from "./StudentForm";
 import StudentAddSheet from "./StudentAddSheet";
 import AlertLoading from "../components/AlertLoading";
 import useStore from "@/store";
+import { useRouter } from "next/navigation";
 
 const Student = () => {
   const theme = useMantineTheme();
@@ -27,11 +29,12 @@ const Student = () => {
   const [alertbox, setAlertbox] = useState("");
   const user = useStore((state) => state.user);
   const userprofile = useStore((state) => state.userprofile);
+  const router = useRouter();
 
   const getsearchvalue = (e) => {
     if (e.type != "click") {
       setSearchvalue(e.target.value);
-      console.log(e.target.value)
+      console.log(e.target.value);
     }
     if (e.key == "Enter" || e.type == "click") {
       setAlertbox(<AlertLoading />);
@@ -107,9 +110,9 @@ const Student = () => {
               No Data Found
             </Text>
           ) : (
-            <ScrollArea >
-                <Paper style={{margin:10}} shadow="sm" radius="lg" p="xl">
-                <Table  miw={800} withTableBorder verticalSpacing="sm">
+            <ScrollArea>
+              <Paper style={{ margin: 10 }} shadow="sm" radius="lg" p="xl">
+                <Table miw={800} withTableBorder verticalSpacing="sm">
                   <Table.Thead>
                     <Table.Tr>
                       <Table.Th>SR</Table.Th>
@@ -123,8 +126,8 @@ const Student = () => {
                   </Table.Thead>
                   <Table.Tbody>{rows}</Table.Tbody>
                 </Table>
-            </Paper>
-              </ScrollArea>
+              </Paper>
+            </ScrollArea>
           )}
         </div>
         <Divider my="md" />
@@ -133,7 +136,21 @@ const Student = () => {
         </Text>
         <div className="flex flex-wrap justify-center">
           <StudentForm />
-          <StudentAddSheet />
+          <Center>
+            <div>
+              <StudentAddSheet />
+              <Center>
+                <Button
+                  onClick={() => {
+                    router.push("/savebssid");
+                  }}
+                  variant="white"
+                >
+                  Save BSSID
+                </Button>
+              </Center>
+            </div>
+          </Center>
         </div>
         {alertbox}
       </div>
