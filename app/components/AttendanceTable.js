@@ -224,129 +224,131 @@ const AttendanceTable = ({
             return (
               <Table.Th key={row._id + index + day}>
                 <Center>
-                <Text
-                  style={{
-                    backgroundColor: color,
-                    width: "30px",
-                    height: "30px",
-                    textAlign: "center",
-                    borderRadius: "30px",
-                    cursor: "pointer",
-                    userSelect: "none",
-                  }}
-                  onClick={() => {
-                    if (!(leter.leter == "-") && editmod) {
-                      let index = -1;
-                      attendencedata.forEach((data, i) => {
-                        if (data._id == leter.attendanceid) {
-                          index = i;
-                        }
-                      });
-                      if (index > -1) {
-                        const attarr = [...attendencedata];
-                        if (attarr[index].students.includes(row.enNo)) {
-                          const enindex = attarr[index].students.indexOf(
-                            row.enNo
-                          );
-                          attarr[index].students.splice(enindex, 1);
-                          setAttendencedata(attarr);
-                        } else {
-                          attarr[index].students.push(row.enNo);
-                          setAttendencedata(attarr);
-                        }
-                        let updateindex = -1;
-                        updateattdencedata.forEach((data, index) => {
-                          if (
-                            data?.updateOne?.filter?._id == leter.attendanceid
-                          ) {
-                            updateindex = index;
+                  <Text
+                    style={{
+                      backgroundColor: color,
+                      width: "30px",
+                      height: "30px",
+                      textAlign: "center",
+                      borderRadius: "30px",
+                      cursor: "pointer",
+                      userSelect: "none",
+                    }}
+                    onClick={() => {
+                      if (!(leter.leter == "-") && editmod) {
+                        let index = -1;
+                        attendencedata.forEach((data, i) => {
+                          if (data._id == leter.attendanceid) {
+                            index = i;
                           }
                         });
-                        const updatedata = [...updateattdencedata];
-                        if (updateindex > -1) {
-                          updatedata[updateindex].updateOne.update[
-                            "$set"
-                          ].students = attendencedata[index].students;
-                        } else {
-                          updatedata.push({
-                            updateOne: {
-                              filter: { _id: attendencedata[index]._id },
-                              update: {
-                                $set: {
-                                  students: attendencedata[index].students,
+                        if (index > -1) {
+                          const attarr = [...attendencedata];
+                          if (attarr[index].students.includes(row.enNo)) {
+                            const enindex = attarr[index].students.indexOf(
+                              row.enNo
+                            );
+                            attarr[index].students.splice(enindex, 1);
+                            setAttendencedata(attarr);
+                          } else {
+                            attarr[index].students.push(row.enNo);
+                            setAttendencedata(attarr);
+                          }
+                          let updateindex = -1;
+                          updateattdencedata.forEach((data, index) => {
+                            if (
+                              data?.updateOne?.filter?._id == leter.attendanceid
+                            ) {
+                              updateindex = index;
+                            }
+                          });
+                          const updatedata = [...updateattdencedata];
+                          if (updateindex > -1) {
+                            updatedata[updateindex].updateOne.update[
+                              "$set"
+                            ].students = attendencedata[index].students;
+                          } else {
+                            updatedata.push({
+                              updateOne: {
+                                filter: { _id: attendencedata[index]._id },
+                                update: {
+                                  $set: {
+                                    students: attendencedata[index].students,
+                                  },
                                 },
                               },
-                            },
-                          });
-                        }
-                        setUpdateattdencedata(updatedata);
-                      } else {
-                        let inserobjindex = -1;
-                        let insertindex = -1;
-                        const updatedata = [...updateattdencedata];
-                        let isinsertmany = false;
-                        updatedata.forEach((data) => {
-                          if (data?.insertMany) {
-                            isinsertmany = true;
+                            });
                           }
-                        });
-                        if (!isinsertmany) {
-                          updatedata.push({ insertMany: { documents: [] } });
-                        }
-                        updatedata.forEach((data, index) => {
-                          if (data?.insertMany) {
-                            inserobjindex = index;
-                            if (data.insertMany.documents.length > 0) {
-                              data.insertMany.documents.forEach(
-                                (insertdata, insindex) => {
-                                  if (
-                                    insertdata.classtype == classtype &&
-                                    insertdata.date ==
-                                      date.toFormat("yyyy/MM/dd") &&
-                                    insertdata.registerid == registerdata._id
-                                  ) {
-                                    insertindex = insindex;
-                                  }
-                                }
-                              );
-                            }
-                          }
-                        });
-                        if (insertindex > -1 && inserobjindex > -1) {
-                          if (
-                            updatedata[inserobjindex].insertMany.documents[
-                              insertindex
-                            ].students.includes(row.enNo)
-                          ) {
-                            const enindex = updatedata[
-                              inserobjindex
-                            ].insertMany.documents[
-                              insertindex
-                            ].students.indexOf(row.enNo);
-
-                            updatedata[inserobjindex].insertMany.documents[
-                              insertindex
-                            ].students.splice(enindex, 1);
-                          } else {
-                            updatedata[inserobjindex].insertMany.documents[
-                              insertindex
-                            ].students.push(row.enNo);
-                          }
+                          setUpdateattdencedata(updatedata);
                         } else {
-                          updatedata[inserobjindex].insertMany.documents.push({
-                            registerid: registerdata._id,
-                            students: [row.enNo],
-                            date: date.toFormat("yyyy/MM/dd"),
-                            classtype: classtype,
+                          let inserobjindex = -1;
+                          let insertindex = -1;
+                          const updatedata = [...updateattdencedata];
+                          let isinsertmany = false;
+                          updatedata.forEach((data) => {
+                            if (data?.insertMany) {
+                              isinsertmany = true;
+                            }
                           });
+                          if (!isinsertmany) {
+                            updatedata.push({ insertMany: { documents: [] } });
+                          }
+                          updatedata.forEach((data, index) => {
+                            if (data?.insertMany) {
+                              inserobjindex = index;
+                              if (data.insertMany.documents.length > 0) {
+                                data.insertMany.documents.forEach(
+                                  (insertdata, insindex) => {
+                                    if (
+                                      insertdata.classtype == classtype &&
+                                      insertdata.date ==
+                                        date.toFormat("yyyy/MM/dd") &&
+                                      insertdata.registerid == registerdata._id
+                                    ) {
+                                      insertindex = insindex;
+                                    }
+                                  }
+                                );
+                              }
+                            }
+                          });
+                          if (insertindex > -1 && inserobjindex > -1) {
+                            if (
+                              updatedata[inserobjindex].insertMany.documents[
+                                insertindex
+                              ].students.includes(row.enNo)
+                            ) {
+                              const enindex = updatedata[
+                                inserobjindex
+                              ].insertMany.documents[
+                                insertindex
+                              ].students.indexOf(row.enNo);
+
+                              updatedata[inserobjindex].insertMany.documents[
+                                insertindex
+                              ].students.splice(enindex, 1);
+                            } else {
+                              updatedata[inserobjindex].insertMany.documents[
+                                insertindex
+                              ].students.push(row.enNo);
+                            }
+                          } else {
+                            updatedata[inserobjindex].insertMany.documents.push(
+                              {
+                                registerid: registerdata._id,
+                                students: [row.enNo],
+                                date: date.toFormat("yyyy/MM/dd"),
+                                classtype: classtype,
+                              }
+                            );
+                          }
+                          setUpdateattdencedata(updatedata);
                         }
-                        setUpdateattdencedata(updatedata);
                       }
-                    }
-                  }}
-                >
-                  {leter.leter}
-                </Text>
+                    }}
+                  >
+                    {leter.leter}
+                  </Text>
                 </Center>
               </Table.Th>
             );
@@ -421,8 +423,7 @@ const AttendanceTable = ({
               {daysinmonth.map((day, index) => {
                 const date = DateTime.fromISO(
                   new Date(currentmonth).toISOString()
-                )
-                  .plus({ days: index })
+                ).plus({ days: index });
                 return (
                   <Table.Th
                     key={`${day}${index}`}
@@ -430,9 +431,13 @@ const AttendanceTable = ({
                       textAlign: "center",
                     }}
                   >
-                    <Text>{date.toFormat("dd/MM/yyyy")}<br/>
-                    {date.toLocaleString({ weekday: "short" })}<br/>
-                    {day}</Text>
+                    <Text>
+                      {date.toFormat("dd/MM/yyyy")}
+                      <br />
+                      {date.toLocaleString({ weekday: "short" })}
+                      <br />
+                      {day}
+                    </Text>
                   </Table.Th>
                 );
               })}
@@ -448,16 +453,20 @@ const AttendanceTable = ({
                   <Table.Th>Total</Table.Th>
                   <Table.Th></Table.Th>
                   <Table.Th></Table.Th>
+
                   {daysinmonth.map((day, index) => {
+                    // Total of Day
                     let ispresent = false;
                     let insertindex = -1;
                     let studentarr = [];
+
                     const currentmonthdate = DateTime.fromISO(
                       new Date(currentmonth).toISOString()
                     ).set({ day: day });
                     let daytotal = 0;
                     if (
-                      currentmonthdate.toMillis() <= DateTime.now().toMillis() &&
+                      currentmonthdate.toMillis() <=
+                        DateTime.now().toMillis() &&
                       currentmonthdate.toMillis() <=
                         DateTime.fromISO(registerdata.enddate).toMillis()
                     ) {
@@ -494,6 +503,11 @@ const AttendanceTable = ({
                           )
                         );
                       });
+                      if (totalday[0]) {
+                        totalday[0].students = totalday[0].students.filter(
+                          (student) => registerdata.students.includes(student)
+                        );
+                      }
                       let attstudents =
                         totalday[0]?.students.length > 0
                           ? totalday[0].students
@@ -504,7 +518,9 @@ const AttendanceTable = ({
                       }
                     }
                     return (
-                      <Table.Th key={`${day}${index}`}><Center>{daytotal}</Center></Table.Th>
+                      <Table.Th key={`${day}${index}`}>
+                        <Center>{daytotal}</Center>
+                      </Table.Th>
                     );
                   })}
                   <Table.Th></Table.Th>

@@ -8,6 +8,7 @@ import {
   IconPackage,
   IconSquareCheck,
   IconTrash,
+  IconUserEdit,
   IconUsers,
 } from "@tabler/icons-react";
 import {
@@ -41,6 +42,7 @@ import AlertError from "@/app/components/AlertError";
 import AlertSuccess from "@/app/components/AlertSuccess";
 import EditRegister from "@/app/components/EditRegister";
 import { useRouter } from "next/navigation";
+import ManageStudent from "@/app/components/ManageStudent";
 
 const calmonth = (d1, d2) => {
   const now = DateTime.fromISO(d1);
@@ -82,20 +84,18 @@ const RegisterPage = ({ params }) => {
   const [resetdataLec, setResetdataLec] = useState();
   const [alertbox, setAlertbox] = useState("");
   const [editopened, editfunction] = useDisclosure(false);
+  const [managestudentopened, managestudentfunction] = useDisclosure(false);
   const [deleteopened, setDeleteOpened] = useState(false);
   const router = useRouter();
 
   const deleteRegister = async () => {
     setAlertbox(<AlertLoading />);
-    const res = await fetch(
-      "/api/register/deleteregister",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          registerid: registerdata._id,
-        }),
-      }
-    );
+    const res = await fetch("/api/register/deleteregister", {
+      method: "POST",
+      body: JSON.stringify({
+        registerid: registerdata._id,
+      }),
+    });
     const data = await res.json();
     if (data.success) {
       setAlertbox(
@@ -122,16 +122,13 @@ const RegisterPage = ({ params }) => {
   };
   const getstudentdetail = async () => {
     setAlertbox(<AlertLoading />);
-    const res = await fetch(
-      "/api/attendance/getstudents",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          registerid: (await params).registerid,
-          withatt: true,
-        }),
-      }
-    );
+    const res = await fetch("/api/attendance/getstudents", {
+      method: "POST",
+      body: JSON.stringify({
+        registerid: (await params).registerid,
+        withatt: true,
+      }),
+    });
     const data = await res.json();
     if (data.success) {
       setstudentsdata(data.payload.students);
@@ -189,6 +186,16 @@ const RegisterPage = ({ params }) => {
             >
               Edit
             </Button>
+
+            <Button
+              color="green"
+              variant="light"
+              leftSection={<IconUserEdit size={16} />}
+              onClick={managestudentfunction.open}
+            >
+              Students
+            </Button>
+
             <Button
               color="red"
               variant="light"
@@ -210,6 +217,22 @@ const RegisterPage = ({ params }) => {
             getstudentdetail={getstudentdetail}
             close={editfunction.close}
             registerdata={registerdata}
+          />
+        </Drawer>
+        <Drawer
+          offset={10}
+          radius={10}
+          size="100%"
+          position="bottom"
+          opened={managestudentopened}
+          onClose={managestudentfunction.close}
+          title="Manage Student"
+        >
+          <ManageStudent
+            studentdata={studentsdata}
+            registerdata={registerdata}
+            setregisterdata={setRegisterdata}
+            setstudentdata={setstudentsdata}
           />
         </Drawer>
         <Modal
@@ -336,18 +359,15 @@ const RegisterPage = ({ params }) => {
                     <Button
                       onClick={async () => {
                         setAlertbox(<AlertLoading />);
-                        await fetch(
-                          "/api/register/updateworkingdates",
-                          {
-                            method: "POST",
-                            body: JSON.stringify({
-                              classtype: "Lab",
-                              workingDaysLab,
-                              nonworkingdateLab,
-                              registerid: registerdata._id,
-                            }),
-                          }
-                        ).then(async (data) => {
+                        await fetch("/api/register/updateworkingdates", {
+                          method: "POST",
+                          body: JSON.stringify({
+                            classtype: "Lab",
+                            workingDaysLab,
+                            nonworkingdateLab,
+                            registerid: registerdata._id,
+                          }),
+                        }).then(async (data) => {
                           let res = await data.json();
                           if (res.success) {
                             setAlertbox(
@@ -468,18 +488,15 @@ const RegisterPage = ({ params }) => {
                     <Button
                       onClick={async () => {
                         setAlertbox(<AlertLoading />);
-                        await fetch(
-                          "/api/register/updateworkingdates",
-                          {
-                            method: "POST",
-                            body: JSON.stringify({
-                              classtype: "Lec",
-                              workingDaysLec,
-                              nonworkingdateLec,
-                              registerid: registerdata._id,
-                            }),
-                          }
-                        ).then(async (data) => {
+                        await fetch("/api/register/updateworkingdates", {
+                          method: "POST",
+                          body: JSON.stringify({
+                            classtype: "Lec",
+                            workingDaysLec,
+                            nonworkingdateLec,
+                            registerid: registerdata._id,
+                          }),
+                        }).then(async (data) => {
                           let res = await data.json();
                           if (res.success) {
                             setAlertbox(
