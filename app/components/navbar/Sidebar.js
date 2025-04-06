@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 
 import {
   IconLogout,
+  IconSchool,
   IconUserCheck,
   IconUsersGroup,
   IconUserUp,
@@ -20,6 +21,7 @@ const facultylinks = [
   { link: "/student", label: "Students", icon: IconUsersGroup },
   { link: "/register", label: "Register", icon: IconVocabulary },
   { link: "/authrequest", label: "Auth Request", icon: IconUserCheck },
+  { link: "/semester", label: "Semester", icon: IconSchool },
 ];
 const studentslinks = [
   { link: "/studentattendance", label: "Attendance", icon: IconUserUp },
