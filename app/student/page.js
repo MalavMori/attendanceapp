@@ -20,6 +20,7 @@ import StudentAddSheet from "./StudentAddSheet";
 import AlertLoading from "../components/AlertLoading";
 import useStore from "@/store";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Student = () => {
   const theme = useMantineTheme();
@@ -59,9 +60,17 @@ const Student = () => {
         <Table.Td>{index + 1}</Table.Td>
         <Table.Td>
           <Group gap="sm">
-            <Text size="sm" fw={500}>
-              {item.enNo}
-            </Text>
+            <Link href={`/student/${item.enNo}`}>
+              <Text
+                size="sm"
+                style={{
+                  cursor: "pointer",
+                }}
+                fw={500}
+              >
+                {item.enNo}
+              </Text>
+            </Link>
           </Group>
         </Table.Td>
         <Table.Td>{item.name}</Table.Td>

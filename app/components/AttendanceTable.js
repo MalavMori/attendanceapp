@@ -31,6 +31,7 @@ import { useRouter } from "next/navigation";
 import { useDisclosure } from "@mantine/hooks";
 import { DatePickerInput } from "@mantine/dates";
 import Report from "./Report";
+import Link from "next/link";
 
 function Th({ children, reversed, sorted, onSort }) {
   const Icon = sorted
@@ -191,7 +192,11 @@ const AttendanceTable = ({
     return (
       <Table.Tr key={row._id}>
         <Table.Th>{index + 1}</Table.Th>
-        <Table.Th>{row.enNo}</Table.Th>
+        <Table.Th>
+        <Link href={`/student/${row.enNo}`}>
+          {row.enNo}
+        </Link>
+          </Table.Th>
         <Table.Th>{row.name}</Table.Th>
         {daysinmonth.map((day) => {
           const date = DateTime.fromISO(

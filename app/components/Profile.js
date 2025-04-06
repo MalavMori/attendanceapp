@@ -19,7 +19,7 @@ import AlertSuccess from "./AlertSuccess";
 import AlertError from "./AlertError";
 import { IconCheck } from "@tabler/icons-react";
 
-function UserProfileCard({
+export function UserProfileCard({
   enNo,
   name,
   email,
