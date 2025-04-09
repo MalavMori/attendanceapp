@@ -42,4 +42,5 @@ export const POST = async (req, res) => {
   } catch (error) {
     return Response.json({ message: "Error", success: false });
   }
+  return Response.json({ message: "Internal server error", success: false });
 };
